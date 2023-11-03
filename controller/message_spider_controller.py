@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request, Response, BackgroundTasks
 from fastapi.responses import StreamingResponse
-from model import SubmitTaskDTO, ResData
+from model import SubmitTaskDTO, ResData, SearchMessageTextDTO
 from service.message_spider_service import MessageService
 import asyncio
 
@@ -16,6 +16,7 @@ async def process(submit_task_dto: SubmitTaskDTO, service: MessageService = Depe
 
     return ResData.success("提交成功")
 
+
 @message_spider_router.get("/task_process")
 async def task_process(service: MessageService = Depends()):
     headers = {
@@ -25,3 +26,8 @@ async def task_process(service: MessageService = Depends()):
         'Cache-Control': 'no-cache',
     }
     return StreamingResponse(service.get_task_process(), headers=headers)
+
+
+@message_spider_router.post("/search_message_text")
+def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: MessageService = Depends()):
+    return service.search_messages_by_text(search_message_text_dto.messageText)

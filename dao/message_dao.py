@@ -18,3 +18,9 @@ class MessageDAO:
         values = (msg["channel"], msg["id"], msg["date"], msg["text"], msg["link"])
         cursor.execute(sql_insert, values)
         self.db.commit()
+
+    def search_messages_by_text(self, text):
+        cursor = self.db.cursor()
+        sql_query = "SELECT * FROM tb_message WHERE message_text LIKE %s"
+        cursor.execute(sql_query, ("%" + text + "%",))
+        return cursor.fetchall()

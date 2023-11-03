@@ -62,3 +62,5 @@ class MessageService:
                                                                     json.dumps([item.decode('utf-8') for item in task_list]))
             await asyncio.sleep(1)
 
+    def search_messages_by_text(self, text):
+        return self.dao(text)
