@@ -56,6 +56,6 @@ class MessageService:
                 task = await self.redis.get(key)
                 task_list.append(task)
             print(task_list)
-            yield json.dumps(task_list) + "\n"
+            yield json.dumps([item.decode('utf-8') for item in task_list]) + "\n"
             await asyncio.sleep(1)
 
