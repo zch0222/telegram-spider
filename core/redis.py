@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 import aioredis
 
 async def get_redis():
-    redis = await aioredis.create_redis_pool('redis://localhost')
+    redis = await aioredis.from_url("redis://localhost")
     try:
         yield redis
     finally:
