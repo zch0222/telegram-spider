@@ -47,6 +47,7 @@ class MessageService:
             if self.dao.get_message_by_link(msg["link"]) is None:
                 self.dao.insert_message(msg)
         await client.disconnect()
+        self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
 
     async def get_task_process(self):
         while True:
@@ -55,7 +56,7 @@ class MessageService:
             for key in keys:
                 task = await self.redis.get(key)
                 task_list.append(task)
-            print(task_list)
+            print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             yield json.dumps([item.decode('utf-8') for item in task_list]) + "\n"
             await asyncio.sleep(1)
 
