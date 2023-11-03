@@ -15,6 +15,6 @@ class MessageDAO:
     def insert_message(self, msg):
         cursor = self.db.cursor()
         sql_insert = "INSERT INTO tb_message (channel, message_id, date, message_text, link) VALUES (%s, %s, %s, %s, %s)"
-        values = (msg["CHANNEL"], msg["id"], msg["date"], msg["text"], msg["link"])
+        values = (msg["channel"], msg["id"], msg["date"], msg["text"], msg["link"])
         cursor.execute(sql_insert, values)
         self.db.commit()

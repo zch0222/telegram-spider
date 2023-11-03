@@ -14,6 +14,7 @@ class MessageService:
         messages = client.iter_messages(channel, min_id=min_id)
         async for message in messages:
             msg = {
+                "channel": channel,
                 "id": message.id,
                 "date": str(message.date),
                 "text": message.text,
