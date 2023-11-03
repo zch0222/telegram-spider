@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request, Response, BackgroundTasks
+from fastapi.responses import StreamingResponse
 from model import SubmitTaskDTO
 from service.message_spider_service import MessageService
 import asyncio
@@ -14,3 +15,7 @@ async def process(submit_task_dto: SubmitTaskDTO, service: MessageService = Depe
     asyncio.create_task(service.process_messages(channel, min_id))
 
     return {"message": "Process completed"}
+
+@message_spider_router.get("/task_process")
+async def task_process(service: MessageService = Depends()):
+    return StreamingResponse(service.get_task_process())
