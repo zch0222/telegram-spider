@@ -18,4 +18,10 @@ async def process(submit_task_dto: SubmitTaskDTO, service: MessageService = Depe
 
 @message_spider_router.get("/task_process")
 async def task_process(service: MessageService = Depends()):
-    return StreamingResponse(service.get_task_process())
+    headers = {
+        # 设置返回数据类型是SSE
+        'Content-Type': 'text/event-stream',
+        # 保证客户端的数据是新的
+        'Cache-Control': 'no-cache',
+    }
+    return StreamingResponse(service.get_task_process(), headers=headers)

@@ -4,7 +4,7 @@ from dao.message_dao import MessageDAO
 from core import get_redis
 from fastapi import Depends
 from telethon import TelegramClient, utils
-from datetime import datetime
+from datetime import datetime, time
 import os
 import aioredis
 import asyncio
@@ -47,7 +47,7 @@ class MessageService:
             if self.dao.get_message_by_link(msg["link"]) is None:
                 self.dao.insert_message(msg)
         await client.disconnect()
-        self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
+        await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
 
     async def get_task_process(self):
         while True:
@@ -57,6 +57,7 @@ class MessageService:
                 task = await self.redis.get(key)
                 task_list.append(task)
             print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            yield json.dumps([item.decode('utf-8') for item in task_list]) + "\n"
+            yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
+                                                                    json.dumps([item.decode('utf-8') for item in task_list]))
             await asyncio.sleep(1)
 
