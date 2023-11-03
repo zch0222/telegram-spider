@@ -21,7 +21,7 @@ class MessageService:
     async def process_messages(self, channel, min_id):
         client = TelegramClient('Jian', os.environ.get("API_ID"), os.environ.get("API_HASH"))
         await client.start()
-        redis_id = uuid4()
+        redis_id = str(uuid4())
         await self.redis.hset(TASK_PROCESS_PREFIX + redis_id, TaskBO(
             createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             channel=channel,
