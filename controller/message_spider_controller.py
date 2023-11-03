@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Response, BackgroundTasks
 from model import SubmitTaskDTO
 from service.message_spider_service import MessageService
+import asyncio
 
 message_spider_router = APIRouter()
 
@@ -10,6 +11,6 @@ async def process(submit_task_dto: SubmitTaskDTO, service: MessageService = Depe
     channel = submit_task_dto.channel
     min_id = submit_task_dto.min_id
 
-    await service.process_messages(channel, min_id)
+    asyncio.create_task(service.process_messages(channel, min_id))
 
     return {"message": "Process completed"}
