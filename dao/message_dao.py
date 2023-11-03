@@ -23,4 +23,12 @@ class MessageDAO:
         cursor = self.db.cursor()
         sql_query = "SELECT * FROM tb_message WHERE message_text LIKE %s"
         cursor.execute(sql_query, ("%" + text + "%",))
-        return cursor.fetchall()
+        result_set = cursor.fetchall()
+
+        # 获取列名
+        column_names = [desc[0] for desc in cursor.description]
+
+        # 将结果封装到字典中
+        messages = [dict(zip(column_names, row)) for row in result_set]
+
+        return messages
