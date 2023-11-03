@@ -53,7 +53,7 @@ class MessageService:
             keys = await self.redis.keys(TASK_PROCESS_PREFIX + "*")
             task_list = []
             for key in keys:
-                task = await self.redis.hget(key)
+                task = await self.redis.get(key)
                 task_list.append(task)
             print(task_list)
             yield json.dumps(task_list) + "\n"
