@@ -34,24 +34,32 @@ async def main():
             "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
         }
         msges.append(msg)
+
         # 使用cursor ()方法获取操作游标
         cursor = db.cursor()
 
-        # SQL 插入语句
-        sql = "INSERT INTO tb_message (channel, message_id, date, message_text, link) VALUES (%s, %s, %s, %s, %s)"
-        values = (CHANNEL, msg["id"], msg["date"], msg["text"], msg["link"])
+        # SQL 查询语句
+        sql_query = "SELECT * FROM tb_message WHERE link = %s"
+        cursor.execute(sql_query, (msg["link"],))
+        result = cursor.fetchone()
 
-        try:
-            # 执行sql语句
-            cursor.execute(sql, values)
-            # 提交到数据库执行
-            db.commit()
-        except:
-            # 如果发生错误则回滚
-            db.rollback()
+        # 如果没有找到相同的链接，那么插入数据
+        if result is None:
+            # SQL 插入语句
+            sql_insert = "INSERT INTO tb_message (channel, message_id, date, message_text, link) VALUES (%s, %s, %s, %s, %s)"
+            values = (CHANNEL, msg["id"], msg["date"], msg["text"], msg["link"])
+
+            try:
+                # 执行sql语句
+                cursor.execute(sql_insert, values)
+                # 提交到数据库执行
+                db.commit()
+            except:
+                # 如果发生错误则回滚
+                db.rollback()
 
 
-    with open(f"{CHANNEL}.json", 'w', encoding='utf-8') as f:
+    with open(f"messages.json", 'w', encoding='utf-8') as f:
         json.dump(msges, f, ensure_ascii=False, indent=4)
 
 
