@@ -24,7 +24,7 @@ async def main():
 
     msges = []
 
-    messages = client.iter_messages(CHANNEL, limit=int(os.environ.get("LIMIT")))
+    messages = client.iter_messages(CHANNEL, limit=int(os.environ.get("LIMIT")), min_id=int(os.environ.get("MIN_ID")))
     async for message in messages:
         print(str(message.date))
         msg = {
