@@ -19,6 +19,7 @@ class MessageService:
                 "text": message.text,
                 "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
             }
+            print(msg)
             if self.dao.get_message_by_link(msg["link"]) is None:
                 self.dao.insert_message(msg)
         await client.disconnect()

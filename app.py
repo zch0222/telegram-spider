@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Request
 from controller import message_spider_router
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 app = FastAPI()
