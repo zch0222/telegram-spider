@@ -35,6 +35,8 @@ async def main():
         }
         msges.append(msg)
 
+        print(msg)
+
         # 使用cursor ()方法获取操作游标
         cursor = db.cursor()
 
@@ -54,7 +56,8 @@ async def main():
                 cursor.execute(sql_insert, values)
                 # 提交到数据库执行
                 db.commit()
-            except:
+            except Exception as e:
+                print(e)
                 # 如果发生错误则回滚
                 db.rollback()
 
