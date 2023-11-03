@@ -63,4 +63,4 @@ class MessageService:
             await asyncio.sleep(1)
 
     def search_messages_by_text(self, text):
-        return self.dao(text)
+        return self.dao.search_messages_by_text(text)
