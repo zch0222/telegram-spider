@@ -4,7 +4,8 @@ from dao.message_dao import MessageDAO
 from core import get_redis
 from fastapi import Depends
 from telethon import TelegramClient, utils
-from datetime import datetime, time
+from datetime import datetime
+import time
 import os
 import aioredis
 import asyncio
