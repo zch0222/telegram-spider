@@ -22,7 +22,7 @@ class MessageService:
         client = TelegramClient('Jian', os.environ.get("API_ID"), os.environ.get("API_HASH"))
         await client.start()
         redis_id = str(uuid4())
-        await self.redis.hset(TASK_PROCESS_PREFIX + redis_id, TaskBO(
+        await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
             createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             channel=channel,
             currentMessageId=0,
@@ -37,7 +37,7 @@ class MessageService:
                 "text": message.text,
                 "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
             }
-            await self.redis.hset(TASK_PROCESS_PREFIX + redis_id, TaskBO(
+            await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
                 createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 channel=channel,
                 currentMessageId=0,
