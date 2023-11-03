@@ -27,7 +27,7 @@ class MessageService:
             channel=channel,
             currentMessageId=0,
             minMessageId=min_id
-        ).to_dic())
+        ).to_json_str())
         messages = client.iter_messages(channel, min_id=min_id)
         async for message in messages:
             msg = {
@@ -42,7 +42,7 @@ class MessageService:
                 channel=channel,
                 currentMessageId=0,
                 minMessageId=min_id
-            ).to_dic())
+            ).to_json_str())
             print(msg)
             if self.dao.get_message_by_link(msg["link"]) is None:
                 self.dao.insert_message(msg)

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+import json
 
 class TaskBO(BaseModel):
     createTime: str
@@ -7,10 +7,10 @@ class TaskBO(BaseModel):
     currentMessageId: int
     minMessageId: int
 
-    def to_dic(self):
-        return {
+    def to_json_str(self):
+        return json.dumps({
             "createTime": self.createTime,
             "channel": self.channel,
             "currentMessageId": self.currentMessageId,
             "minMessageId": self.minMessageId
-        }
+        })
