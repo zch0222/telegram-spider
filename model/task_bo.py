@@ -8,12 +8,12 @@ class TaskBO(BaseModel):
     minMessageId: int
 
     def to_json_str(self):
-        print({
+        print(json.dumps({
             "createTime": self.createTime,
             "channel": self.channel,
             "currentMessageId": self.currentMessageId,
             "minMessageId": self.minMessageId
-        })
+        }))
         return json.dumps({
             "createTime": self.createTime,
             "channel": self.channel,
