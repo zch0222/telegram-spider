@@ -2,8 +2,8 @@ from dotenv import load_dotenv
 import os
 from telethon import TelegramClient, utils
 import json
-import asyncio
-from telethon.tl.types import InputMessagesFilterPhotos, InputMessagesFilterDocument
+import pymysql
+
 
 load_dotenv()
 
@@ -15,6 +15,9 @@ print(API_ID)
 
 client = TelegramClient('Jian', API_ID, API_HASH)
 
+# 连接数据库
+db = pymysql.connect(host=os.environ.get("MYSQL_HOST"), user=os.environ.get("MYSQL_USER"), password=os.environ.get("MYSQL_PASSWORD"), database=os.environ.get("MYSQL_DATABASE"))
+
 async def main():
     me = await client.get_me()
     print(me.username)
@@ -24,15 +27,36 @@ async def main():
     messages = client.iter_messages(CHANNEL, limit=100)
     async for message in messages:
         print(str(message.date))
-        msges.append({
+        msg = {
             "id": message.id,
             "date": str(message.date),
             "text": message.text,
             "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
-        })
+        }
+        msges.append(msg)
+        # 使用cursor ()方法获取操作游标
+        cursor = db.cursor()
+
+        # SQL 插入语句
+        sql = "INSERT INTO tb_message (channel, message_id, date, message_text, link) VALUES (%s, %s, %s, %s, %s)"
+        values = (CHANNEL, msg["id"], msg["date"], msg["text"], msg["link"])
+
+        try:
+            # 执行sql语句
+            cursor.execute(sql, values)
+            # 提交到数据库执行
+            db.commit()
+        except:
+            # 如果发生错误则回滚
+            db.rollback()
+
+
     with open(f"{CHANNEL}.json", 'w', encoding='utf-8') as f:
         json.dump(msges, f, ensure_ascii=False, indent=4)
+
 
 with client:
     client.loop.run_until_complete(main())
 
+# 关闭数据库连接
+db.close()
