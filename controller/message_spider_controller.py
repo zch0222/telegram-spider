@@ -30,4 +30,4 @@ async def task_process(service: MessageService = Depends()):
 
 @message_spider_router.post("/search_message_text")
 def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: MessageService = Depends()):
-    return service.search_messages_by_text(search_message_text_dto.messageText)
+    return ResData.success(service.search_messages_by_text(search_message_text_dto.messageText))
