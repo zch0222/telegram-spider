@@ -122,7 +122,7 @@ class MessageService:
                     subdir = os.path.join(path, str(message.id))
                     os.makedirs(subdir, exist_ok=True)
                     # 下载媒体文件到子目录
-                    await self.redis.set(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link)
+                    await self.redis.set(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link, '1')
                     await message.download_media(subdir)
                     await self.redis.delete(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link)
         finally:
