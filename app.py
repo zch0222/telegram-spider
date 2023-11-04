@@ -14,6 +14,7 @@ origins = [
     "https://localhost.tiangolo.com",
     "http://localhost:3000",
     "http://154.7.179.45:8081",
+    "https://telegram.yxlm.cloud"
 ]
 
 app.add_middleware(
