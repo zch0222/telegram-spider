@@ -7,6 +7,7 @@ from telethon import TelegramClient, utils, types
 from datetime import datetime
 import time
 import os
+import re
 import aioredis
 import asyncio
 from uuid import uuid4
@@ -78,29 +79,33 @@ class MessageService:
         telegram_client = get_telegram_client()
         await telegram_client.start()
         try:
-            message = await telegram_client.get_messages(message_link)
-            if message.media:
+            pattern = r'(.*?)/(\d+)$'
+            match = re.search(pattern, message_link)
+            link = match.group(1)
+            message_id = match.group(2)
+            messages = telegram_client.iter_messages(link, min_id=message_id, max_id=message_id)
+            for message in messages:
+                if message.media:
+                    path = os.environ.get("MEDIA_DOWNLOAD_SAVE_PATH")
+                    print(path)
 
-                path = os.environ.get("MEDIA_DOWNLOAD_SAVE_PATH")
-                print(path)
+                    # 检查 to_id 的类型并获取相应的 ID
+                    if isinstance(message.to_id, types.PeerUser):
+                        print(f"User ID: {message.to_id.user_id}")
+                        path = path + f"/user/{message.to_id.user_id}"
+                    elif isinstance(message.to_id, types.PeerChat):
+                        print(f"Group ID: {message.to_id.chat_id}")
+                        path = path + f"/group/{message.to_id.chat_id}"
+                    elif isinstance(message.to_id, types.PeerChannel):
+                        print(f"Channel ID: {message.to_id.channel_id}")
+                        path = path + f"/channel/{message.to_id.channel_id}"
 
-                # 检查 to_id 的类型并获取相应的 ID
-                if isinstance(message.to_id, types.PeerUser):
-                    print(f"User ID: {message.to_id.user_id}")
-                    path = path + f"/user/{message.to_id.user_id}"
-                elif isinstance(message.to_id, types.PeerChat):
-                    print(f"Group ID: {message.to_id.chat_id}")
-                    path = path + f"/group/{message.to_id.chat_id}"
-                elif isinstance(message.to_id, types.PeerChannel):
-                    print(f"Channel ID: {message.to_id.channel_id}")
-                    path = path + f"/channel/{message.to_id.channel_id}"
+                    print(path)
 
-                print(path)
-
-                subdir = os.path.join(path, str(message.id))
-                os.makedirs(subdir, exist_ok=True)
-                # 下载媒体文件到子目录
-                await message.download_media(subdir)
+                    subdir = os.path.join(path, str(message.id))
+                    os.makedirs(subdir, exist_ok=True)
+                    # 下载媒体文件到子目录
+                    await message.download_media(subdir)
         finally:
             await telegram_client.disconnect()
 
