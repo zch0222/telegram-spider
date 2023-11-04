@@ -35,4 +35,5 @@ def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: 
 
 @message_spider_router.post("/download_message_media")
 def download_message_media(download_message_media_dto: DownloadMessageMediaDTO, service: MessageService = Depends()):
-    return ResData.success(service.download_media_from_message(download_message_media_dto.message_link))
+    asyncio.create_task(service.download_media_from_message(download_message_media_dto.message_link))
+    return ResData.success("提交下载任务成功")
