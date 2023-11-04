@@ -27,8 +27,9 @@ async def task_process(service: MessageService = Depends()):
     }
     return StreamingResponse(service.get_task_process(), headers=headers)
 
+
 @message_spider_router.get("/message_media_download_process")
-async def message_media_download_process(service: MessageService = Depends())
+async def message_media_download_process(service: MessageService = Depends()):
     headers = {
         # 设置返回数据类型是SSE
         'Content-Type': 'text/event-stream',
@@ -37,12 +38,14 @@ async def message_media_download_process(service: MessageService = Depends())
     }
     return StreamingResponse(service.get_message_media_download_process(), headers=headers)
 
+
 @message_spider_router.post("/search_message_text")
 def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: MessageService = Depends()):
     return ResData.success(service.search_messages_by_text(search_message_text_dto.messageText))
 
 
 @message_spider_router.post("/download_message_media")
-async def download_message_media(download_message_media_dto: DownloadMessageMediaDTO, service: MessageService = Depends()):
+async def download_message_media(download_message_media_dto: DownloadMessageMediaDTO,
+                                 service: MessageService = Depends()):
     asyncio.create_task(service.download_media_from_message(download_message_media_dto.message_link))
     return ResData.success("提交下载任务成功")
