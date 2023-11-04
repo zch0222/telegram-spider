@@ -74,7 +74,8 @@ class MessageService:
     def search_messages_by_text(self, text):
         return self.dao.search_messages_by_text(text)
 
-    async def download_media_from_message(self, message_link: str, telegram_client: TelegramClient = Depends(get_telegram_client)):
+    async def download_media_from_message(self, message_link: str):
+        telegram_client = TelegramClient('Jian', os.environ.get("API_ID"), os.environ.get("API_HASH"))
         await telegram_client.start()
         message = await telegram_client.get_messages(message_link)
         if message.media:
@@ -99,5 +100,4 @@ class MessageService:
             os.makedirs(subdir, exist_ok=True)
             # 下载媒体文件到子目录
             await message.download_media(subdir)
-
-
+        await telegram_client.disconnect()
