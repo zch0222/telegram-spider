@@ -76,6 +76,7 @@ class MessageService:
         return self.dao.search_messages_by_text(text)
 
     async def download_media_from_message(self, message_link: str):
+        print(message_link)
         telegram_client = get_telegram_client()
         await telegram_client.start()
         try:
@@ -83,6 +84,8 @@ class MessageService:
             match = re.search(pattern, message_link)
             link = match.group(1)
             message_id = match.group(2)
+            print(message_id)
+            print(int(message_id))
             messages = telegram_client.iter_messages(link, min_id=int(message_id), max_id=int(message_id))
             async for message in messages:
                 if message.media:
