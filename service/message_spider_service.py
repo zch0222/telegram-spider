@@ -89,6 +89,11 @@ class MessageService:
 
     async def download_media_from_message(self, message_link: str):
         print(message_link)
+        redis_key = MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link
+        check_redis_data = await self.redis.get(redis_key)
+        if check_redis_data:
+            print(f"link is downloading {message_link}")
+            return
         telegram_client = get_telegram_client()
         await telegram_client.start()
         try:
