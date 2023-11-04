@@ -113,6 +113,7 @@ class MessageService:
                     await message.download_media(subdir)
         finally:
             await telegram_client.disconnect()
+        print(666)
 
 
 
