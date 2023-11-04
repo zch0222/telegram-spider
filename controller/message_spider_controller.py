@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request, Response, BackgroundTasks
 from fastapi.responses import StreamingResponse
-from model import SubmitTaskDTO, ResData, SearchMessageTextDTO
+from model import SubmitTaskDTO, ResData, SearchMessageTextDTO, DownloadMessageMediaDTO
 from service.message_spider_service import MessageService
 import asyncio
 
@@ -31,3 +31,8 @@ async def task_process(service: MessageService = Depends()):
 @message_spider_router.post("/search_message_text")
 def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: MessageService = Depends()):
     return ResData.success(service.search_messages_by_text(search_message_text_dto.messageText))
+
+
+@message_spider_router.post("/download_message_media")
+def download_message_media(download_message_media_dto: DownloadMessageMediaDTO, service: MessageService = Depends()):
+    return ResData.success(service.download_media_from_message(download_message_media_dto.message_link))
