@@ -16,10 +16,9 @@ from core import get_telegram_client
 
 
 class MessageService:
-    def __init__(self, dao: MessageDAO = Depends(), redis: aioredis.Redis = Depends(get_redis), telegram_client: TelegramClient = Depends(get_telegram_client)):
+    def __init__(self, dao: MessageDAO = Depends(), redis: aioredis.Redis = Depends(get_redis)):
         self.dao = dao
         self.redis = redis
-        self.telegram_client = telegram_client
 
     async def process_messages(self, channel, min_id):
         client = TelegramClient('Jian', os.environ.get("API_ID"), os.environ.get("API_HASH"))
@@ -76,8 +75,9 @@ class MessageService:
         return self.dao.search_messages_by_text(text)
 
     async def download_media_from_message(self, message_link: str):
-        await self.telegram_client.start()
-        message = await self.telegram_client.get_messages(message_link)
+        telegram_client = get_telegram_client()
+        await telegram_client.start()
+        message = await telegram_client.get_messages(message_link)
         if message.media:
 
             path = os.environ.get("MEDIA_DOWNLOAD_SAVE_PATH")
@@ -101,6 +101,6 @@ class MessageService:
             # 下载媒体文件到子目录
             await message.download_media(subdir)
 
-        await self.telegram_client.disconnect()
+        await telegram_client.disconnect()
 
 
