@@ -27,6 +27,15 @@ async def task_process(service: MessageService = Depends()):
     }
     return StreamingResponse(service.get_task_process(), headers=headers)
 
+@message_spider_router.get("/message_media_download_process")
+async def message_media_download_process(service: MessageService = Depends())
+    headers = {
+        # 设置返回数据类型是SSE
+        'Content-Type': 'text/event-stream',
+        # 保证客户端的数据是新的
+        'Cache-Control': 'no-cache',
+    }
+    return StreamingResponse(service.get_message_media_download_process(), headers=headers)
 
 @message_spider_router.post("/search_message_text")
 def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: MessageService = Depends()):

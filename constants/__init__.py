@@ -1,1 +1,2 @@
 from .redis_prefix import TASK_PROCESS_PREFIX
+from .redis_prefix import MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX

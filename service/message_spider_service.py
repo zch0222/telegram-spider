@@ -12,7 +12,7 @@ import aioredis
 import asyncio
 from uuid import uuid4
 from model import TaskBO
-from constants import TASK_PROCESS_PREFIX
+from constants import TASK_PROCESS_PREFIX, MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX
 from core import get_telegram_client
 
 
@@ -75,6 +75,18 @@ class MessageService:
     def search_messages_by_text(self, text):
         return self.dao.search_messages_by_text(text)
 
+    async def get_message_media_download_process(self):
+        while True:
+            keys = await self.redis.keys(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + "*")
+            task_list = []
+            for key in keys:
+                task = await self.redis.get(key)
+                task_list.append(task)
+            yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
+                                                                    json.dumps(
+                                                                        [item.decode('utf-8') for item in task_list]))
+            await asyncio.sleep(1)
+
     async def download_media_from_message(self, message_link: str):
         print(message_link)
         telegram_client = get_telegram_client()
@@ -110,10 +122,11 @@ class MessageService:
                     subdir = os.path.join(path, str(message.id))
                     os.makedirs(subdir, exist_ok=True)
                     # 下载媒体文件到子目录
+                    await self.redis.set(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link)
                     await message.download_media(subdir)
+                    await self.redis.delete(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link)
         finally:
             await telegram_client.disconnect()
-        print(666)
 
 
 
