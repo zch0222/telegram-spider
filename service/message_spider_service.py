@@ -87,7 +87,7 @@ class MessageService:
             print(link)
             print(message_id)
             print(int(message_id))
-            messages = telegram_client.iter_messages(link, min_id=int(message_id), max_id=int(message_id))
+            messages = telegram_client.iter_messages(link, min_id=int(message_id)-1, max_id=int(message_id))
             async for message in messages:
                 print(message.media)
                 if message.media:
