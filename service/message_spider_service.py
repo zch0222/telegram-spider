@@ -83,7 +83,7 @@ class MessageService:
             match = re.search(pattern, message_link)
             link = match.group(1)
             message_id = match.group(2)
-            messages = telegram_client.iter_messages(link, min_id=message_id, max_id=message_id)
+            messages = telegram_client.iter_messages(link, min_id=int(message_id), max_id=int(message_id))
             async for message in messages:
                 if message.media:
                     path = os.environ.get("MEDIA_DOWNLOAD_SAVE_PATH")
