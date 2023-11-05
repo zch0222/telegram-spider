@@ -64,9 +64,13 @@ class MessageService:
         except Exception as e:
             print(e)
         finally:
+            print(1)
             await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
+            print(2)
             await client.disconnect()
+            print(3)
             self.logger.info(f"spider: {channel} min_id: {min_id} Finish")
+            print(4)
 
 
 
