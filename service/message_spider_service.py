@@ -1,4 +1,5 @@
 import json
+import logging
 
 from dao.message_dao import MessageDAO
 from core import get_redis
@@ -31,33 +32,36 @@ class MessageService:
             currentMessageId=0,
             minMessageId=min_id
         ).to_json_str())
-        messages = client.iter_messages(channel, min_id=min_id)
-        async for message in messages:
-            sender = await message.get_sender()  # 获取发送者
-            sender_username = sender.username  # 发送者用户名
-            sender_id = sender.id  # 发送者id
-            channel_name = message.chat.title  # 频道名称
-            msg = {
-                "channel": channel,
-                "channel_name": channel_name,  # 添加频道名称
-                "id": message.id,
-                "date": str(message.date),
-                "text": message.text,
-                "sender_username": sender_username,  # 添加发送者用户名
-                "sender_id": sender_id,  # 添加发送者id
-                "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
-            }
-            await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
-                createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                channel=channel,
-                currentMessageId=0,
-                minMessageId=min_id
-            ).to_json_str())
-            print(msg)
-            if self.dao.get_message_by_link(msg["link"]) is None:
-                self.dao.insert_message(msg)
-        await client.disconnect()
-        await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
+        try:
+            messages = client.iter_messages(channel, min_id=min_id)
+            async for message in messages:
+                sender = await message.get_sender()  # 获取发送者
+                sender_username = sender.username  # 发送者用户名
+                sender_id = sender.id  # 发送者id
+                channel_name = message.chat.title  # 频道名称
+                msg = {
+                    "channel": channel,
+                    "channel_name": channel_name,  # 添加频道名称
+                    "id": message.id,
+                    "date": str(message.date),
+                    "text": message.text,
+                    "sender_username": sender_username,  # 添加发送者用户名
+                    "sender_id": sender_id,  # 添加发送者id
+                    "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
+                }
+                await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
+                    createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    channel=channel,
+                    currentMessageId=0,
+                    minMessageId=min_id
+                ).to_json_str())
+                print(msg)
+                if self.dao.get_message_by_link(msg["link"]) is None:
+                    self.dao.insert_message(msg)
+        finally:
+            logging.log(f"spider: {channel} min_id: {min_id} Finish")
+            await client.disconnect()
+            await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
 
     async def get_task_process(self):
         while True:
@@ -104,7 +108,7 @@ class MessageService:
             print(link)
             print(message_id)
             print(int(message_id))
-            messages = telegram_client.iter_messages(link, min_id=int(message_id)-1, max_id=int(message_id)+1)
+            messages = telegram_client.iter_messages(link, min_id=int(message_id) - 1, max_id=int(message_id) + 1)
             async for message in messages:
                 print(message.media)
                 if message.media:
@@ -132,8 +136,3 @@ class MessageService:
                     await self.redis.delete(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link)
         finally:
             await telegram_client.disconnect()
-
-
-
-
-
