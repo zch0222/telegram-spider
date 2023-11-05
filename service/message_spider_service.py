@@ -27,9 +27,12 @@ class MessageService:
 
     async def save_message(self, message, channel, redis_id, min_id, max_id):
         sender = await message.get_sender()  # 获取发送者
-        sender_username = sender.username  # 发送者用户名
-        sender_id = sender.id  # 发送者id
+        sender_username = ""
+        sender_id = 0
         channel_name = message.chat.title  # 频道名称
+        if sender is not None:
+            sender_username = sender.username  # 发送者用户名
+            sender_id = sender.id  # 发送者id
         msg = {
             "channel": channel,
             "channel_name": channel_name,  # 添加频道名称
