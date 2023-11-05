@@ -6,6 +6,7 @@ from core import get_redis, get_logger
 from fastapi import Depends
 from telethon import TelegramClient, utils, types
 from datetime import datetime
+import pytz
 import time
 import os
 import re
@@ -18,7 +19,8 @@ from core import get_telegram_client
 
 
 class MessageService:
-    def __init__(self, dao: MessageDAO = Depends(), redis: aioredis.Redis = Depends(get_redis), logger: logging.Logger = Depends(get_logger)):
+    def __init__(self, dao: MessageDAO = Depends(), redis: aioredis.Redis = Depends(get_redis),
+                 logger: logging.Logger = Depends(get_logger)):
         self.dao = dao
         self.redis = redis
         self.logger = logger
@@ -43,7 +45,7 @@ class MessageService:
             channel=channel,
             currentMessageId=message.id,
             minMessageId=min_id,
-            percent=(max_id-message.id+1) / (max_id-min_id+1) * 100
+            percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100
         ).to_json_str())
         print(msg)
         if self.dao.get_message_by_link(msg["link"]) is None:
@@ -64,15 +66,15 @@ class MessageService:
         except Exception as e:
             print(e)
         finally:
+            shanghai_tz = pytz.timezone('Asia/Shanghai')
+            now = datetime.now(shanghai_tz)
             print(1)
             await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
             print(2)
             await client.disconnect()
             print(3)
-            self.logger.info(f"spider: {channel} min_id: {min_id} Finish")
+            self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- spider: {channel} min_id: {min_id} Finish")
             print(4)
-
-
 
     async def get_task_process(self):
         while True:
