@@ -64,6 +64,7 @@ class MessageService:
             messages = client.iter_messages(channel, min_id=min_id - 1)
             first_message = next(messages)
             max_id = first_message.id
+            print(max_id)
             await self.save_message(first_message, channel, redis_id, min_id, max_id)
             async for message in messages:
                 await self.save_message(message, channel, redis_id, min_id, max_id)
