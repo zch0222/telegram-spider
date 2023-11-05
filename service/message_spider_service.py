@@ -52,7 +52,7 @@ class MessageService:
                 await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
                     createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     channel=channel,
-                    currentMessageId=0,
+                    currentMessageId=message.id,
                     minMessageId=min_id
                 ).to_json_str())
                 print(msg)
