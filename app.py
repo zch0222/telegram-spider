@@ -11,6 +11,7 @@ load_dotenv()
 
 app = FastAPI()
 
+
 # file_handler = RotatingFileHandler(filename="app.log", maxBytes=1000000, backupCount=10)
 # logger = logging.getLogger()
 # logger.addHandler(file_handler)
