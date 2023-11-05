@@ -60,6 +60,7 @@ class MessageService:
         #     minMessageId=min_id,
         #
         # ).to_json_str())
+        print(redis_id)
         try:
             messages = client.iter_messages(channel, min_id=min_id - 1)
             print(1)
