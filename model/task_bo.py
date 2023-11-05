@@ -9,7 +9,6 @@ class TaskBO(BaseModel):
     currentMessageId: int
     minMessageId: int
     percent: float
-    finished: bool
 
     def to_json_str(self):
         print(json.dumps({
@@ -18,8 +17,7 @@ class TaskBO(BaseModel):
             "channel": self.channel,
             "currentMessageId": self.currentMessageId,
             "minMessageId": self.minMessageId,
-            "percent": self.percent,
-            "finished": self.finished
+            "percent": self.percent
         }))
         return json.dumps({
             "name": self.name,
@@ -27,6 +25,5 @@ class TaskBO(BaseModel):
             "channel": self.channel,
             "currentMessageId": self.currentMessageId,
             "minMessageId": self.minMessageId,
-            "percent": self.percent,
-            "finished": self.finished
+            "percent": self.percent
         })

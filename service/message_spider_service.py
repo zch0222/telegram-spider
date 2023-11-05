@@ -46,8 +46,7 @@ class MessageService:
             channel=channel,
             currentMessageId=message.id,
             minMessageId=min_id,
-            percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100,
-            finished=False
+            percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100
         ).to_json_str())
         print(msg)
         if self.dao.get_message_by_link(msg["link"]) is None:
@@ -79,8 +78,7 @@ class MessageService:
                 channel=channel,
                 currentMessageId=message.id,
                 minMessageId=min_id,
-                percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100,
-                finished=True
+                percent=100
             ).to_json_str())
             # await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
             await client.disconnect()
