@@ -68,13 +68,9 @@ class MessageService:
         finally:
             shanghai_tz = pytz.timezone('Asia/Shanghai')
             now = datetime.now(shanghai_tz)
-            print(1)
             await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
-            print(2)
             await client.disconnect()
-            print(3)
             self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- spider: {channel} min_id: {min_id} Finish")
-            print(4)
 
     async def get_task_process(self):
         while True:
