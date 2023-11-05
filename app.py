@@ -7,6 +7,7 @@ import subprocess
 from model import ResData
 import time
 import json
+import asyncio
 
 from controller import message_spider_router
 from dotenv import load_dotenv
@@ -55,6 +56,8 @@ async def get_status():
     while True:
         yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
                                                                 json.dumps(ResData.success("RUNNING")))
+
+        await asyncio.sleep(2)
 
 
 @app.get("status")
