@@ -41,6 +41,7 @@ class MessageService:
             "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
         }
         await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
+            name=channel_name,
             createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             channel=channel,
             currentMessageId=message.id,
@@ -57,6 +58,9 @@ class MessageService:
         redis_id = str(uuid4())
         print(redis_id)
         try:
+            channel_entity = client.get_entity(channel)
+            name = channel_entity.title
+            print(name)
             messages = client.iter_messages(channel, min_id=min_id - 1)
             max_id = -1
             async for message in messages:
@@ -68,7 +72,7 @@ class MessageService:
         finally:
             shanghai_tz = pytz.timezone('Asia/Shanghai')
             now = datetime.now(shanghai_tz)
-            await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
+            # await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
             await client.disconnect()
             self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- spider: {channel} min_id: {min_id} Finish")
 
