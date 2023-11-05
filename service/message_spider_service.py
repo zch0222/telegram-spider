@@ -2,7 +2,7 @@ import json
 import logging
 
 from dao.message_dao import MessageDAO
-from core import get_redis
+from core import get_redis, get_logger
 from fastapi import Depends
 from telethon import TelegramClient, utils, types
 from datetime import datetime
@@ -18,9 +18,10 @@ from core import get_telegram_client
 
 
 class MessageService:
-    def __init__(self, dao: MessageDAO = Depends(), redis: aioredis.Redis = Depends(get_redis)):
+    def __init__(self, dao: MessageDAO = Depends(), redis: aioredis.Redis = Depends(get_redis), logger: logging.Logger = Depends(get_logger)):
         self.dao = dao
         self.redis = redis
+        self.logger = logger
 
     async def save_message(self, message, channel, redis_id, min_id, max_id):
         sender = await message.get_sender()  # 获取发送者
@@ -56,21 +57,16 @@ class MessageService:
         try:
             messages = client.iter_messages(channel, min_id=min_id - 1)
             max_id = -1
-            print(1)
             async for message in messages:
-                print(2)
                 if -1 == max_id:
                     max_id = message.id
-                print(max_id)
                 await self.save_message(message, channel, redis_id, min_id, max_id)
         except Exception as e:
             print(e)
         finally:
-            logging.info(f"spider: {channel} min_id: {min_id} Finish")
             await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
-            print(6)
             await client.disconnect()
-            print(6666)
+            self.logger.info(f"spider: {channel} min_id: {min_id} Finish")
 
 
 
