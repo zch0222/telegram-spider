@@ -11,11 +11,12 @@ load_dotenv()
 
 app = FastAPI()
 
-
-# file_handler = RotatingFileHandler(filename="app.log", maxBytes=1000000, backupCount=10)
-# logger = logging.getLogger()
-# logger.addHandler(file_handler)
-# logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(levelname)s - %(message)s')
+file_handler = RotatingFileHandler(filename="app.log", maxBytes=1000000, backupCount=10)
+file_handler.setFormatter(formatter)
+logger = logging.getLogger()
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 
 
 origins = [
