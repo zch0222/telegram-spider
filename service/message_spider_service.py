@@ -63,13 +63,13 @@ class MessageService:
         print(redis_id)
         try:
             messages = client.iter_messages(channel, min_id=min_id - 1)
+            max_id = -1
             print(1)
-            first_message = await next(messages)
-            print(2)
-            max_id = first_message.id
-            print(max_id)
-            await self.save_message(first_message, channel, redis_id, min_id, max_id)
             async for message in messages:
+                print(2)
+                if -1 == max_id:
+                    max_id = message.id
+                print(max_id)
                 await self.save_message(message, channel, redis_id, min_id, max_id)
                 # sender = await message.get_sender()  # 获取发送者
                 # sender_username = sender.username  # 发送者用户名
