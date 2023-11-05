@@ -58,9 +58,6 @@ class MessageService:
         redis_id = str(uuid4())
         print(redis_id)
         try:
-            channel_entity = client.get_entity(channel)
-            name = channel_entity.title
-            print(name)
             messages = client.iter_messages(channel, min_id=min_id - 1)
             max_id = -1
             async for message in messages:
