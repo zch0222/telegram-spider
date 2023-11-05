@@ -63,16 +63,15 @@ class MessageService:
                     max_id = message.id
                 print(max_id)
                 await self.save_message(message, channel, redis_id, min_id, max_id)
-            logging.log(f"spider: {channel} min_id: {min_id} Finish")
-            print(65656)
         except Exception as e:
             print(e)
         finally:
-            print(5)
+            logging.info(f"spider: {channel} min_id: {min_id} Finish")
             await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
             print(6)
             await client.disconnect()
             print(6666)
+
 
 
     async def get_task_process(self):
