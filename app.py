@@ -40,7 +40,7 @@ app.add_middleware(
 app.include_router(message_spider_router)
 
 
-@app.post("restart")
+@app.post("/restart")
 def restart():
     command = "pkill -f 'uvicorn' && nohup uvicorn main:app --host 0.0.0.0 --port 8000 &"
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
@@ -60,7 +60,7 @@ async def get_status():
         await asyncio.sleep(2)
 
 
-@app.get("status")
+@app.get("/status")
 def status():
     headers = {
         # 设置返回数据类型是SSE
