@@ -2,8 +2,11 @@ from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 import logging
 from logging.handlers import RotatingFileHandler
+from fastapi.responses import StreamingResponse
 import subprocess
 from model import ResData
+import time
+import json
 
 from controller import message_spider_router
 from dotenv import load_dotenv
@@ -48,9 +51,21 @@ def restart():
         return ResData.success("重启成功")
 
 
+async def get_status():
+    while True:
+        yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
+                                                                json.dumps(ResData.success("RUNNING")))
+
+
 @app.get("status")
 def status():
-    return ResData.success("正在运行")
+    headers = {
+        # 设置返回数据类型是SSE
+        'Content-Type': 'text/event-stream',
+        # 保证客户端的数据是新的
+        'Cache-Control': 'no-cache',
+    }
+    return StreamingResponse(get_status(), headers=headers)
 
 
 if __name__ == "__main__":
