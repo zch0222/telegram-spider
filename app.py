@@ -54,6 +54,7 @@ def restart():
 
 async def get_status():
     while True:
+        print("RUNNING")
         yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
                                                                 json.dumps(ResData.success("RUNNING")))
 
