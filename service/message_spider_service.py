@@ -46,7 +46,8 @@ class MessageService:
             channel=channel,
             currentMessageId=message.id,
             minMessageId=min_id,
-            percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100
+            percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100,
+            finished=False
         ).to_json_str())
         print(msg)
         if self.dao.get_message_by_link(msg["link"]) is None:
@@ -60,7 +61,10 @@ class MessageService:
         try:
             messages = client.iter_messages(channel, min_id=min_id - 1)
             max_id = -1
+            channel_name = ""
             async for message in messages:
+                if "" == channel_name:
+                    channel_name = message.chat.title
                 if -1 == max_id:
                     max_id = message.id
                 await self.save_message(message, channel, redis_id, min_id, max_id)
@@ -69,6 +73,15 @@ class MessageService:
         finally:
             shanghai_tz = pytz.timezone('Asia/Shanghai')
             now = datetime.now(shanghai_tz)
+            await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
+                name=channel_name,
+                createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                channel=channel,
+                currentMessageId=message.id,
+                minMessageId=min_id,
+                percent=(max_id - message.id + 1) / (max_id - min_id + 1) * 100,
+                finished=True
+            ).to_json_str())
             # await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
             await client.disconnect()
             self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- spider: {channel} min_id: {min_id} Finish")
