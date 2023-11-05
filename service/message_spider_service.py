@@ -62,7 +62,9 @@ class MessageService:
         # ).to_json_str())
         try:
             messages = client.iter_messages(channel, min_id=min_id - 1)
+            print(1)
             first_message = await next(messages)
+            print(2)
             max_id = first_message.id
             print(max_id)
             await self.save_message(first_message, channel, redis_id, min_id, max_id)
