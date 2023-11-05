@@ -42,7 +42,7 @@ class MessageService:
             channel=channel,
             currentMessageId=message.id,
             minMessageId=min_id,
-            percent=(max_id-message.id) / (max_id-min_id+1) * 100
+            percent=(max_id-message.id+1) / (max_id-min_id+1) * 100
         ).to_json_str())
         print(msg)
         if self.dao.get_message_by_link(msg["link"]) is None:
@@ -52,14 +52,6 @@ class MessageService:
         client = TelegramClient('Jian', os.environ.get("API_ID"), os.environ.get("API_HASH"))
         await client.start()
         redis_id = str(uuid4())
-
-        # await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
-        #     createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        #     channel=channel,
-        #     currentMessageId=0,
-        #     minMessageId=min_id,
-        #
-        # ).to_json_str())
         print(redis_id)
         try:
             messages = client.iter_messages(channel, min_id=min_id - 1)
@@ -71,31 +63,9 @@ class MessageService:
                     max_id = message.id
                 print(max_id)
                 await self.save_message(message, channel, redis_id, min_id, max_id)
-                # sender = await message.get_sender()  # 获取发送者
-                # sender_username = sender.username  # 发送者用户名
-                # sender_id = sender.id  # 发送者id
-                # channel_name = message.chat.title  # 频道名称
-                # msg = {
-                #     "channel": channel,
-                #     "channel_name": channel_name,  # 添加频道名称
-                #     "id": message.id,
-                #     "date": str(message.date),
-                #     "text": message.text,
-                #     "sender_username": sender_username,  # 添加发送者用户名
-                #     "sender_id": sender_id,  # 添加发送者id
-                #     "link": f"https://t.me/c/{message.to_id.channel_id}/{message.id}"  # 构建链接
-                # }
-                # await self.redis.set(TASK_PROCESS_PREFIX + redis_id, TaskBO(
-                #     createTime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                #     channel=channel,
-                #     currentMessageId=message.id,
-                #     minMessageId=min_id
-                # ).to_json_str())
-                # print(msg)
-                # if self.dao.get_message_by_link(msg["link"]) is None:
-                #     self.dao.insert_message(msg)
         finally:
             logging.log(f"spider: {channel} min_id: {min_id} Finish")
+            print(6666)
             await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
             await client.disconnect()
 
