@@ -21,7 +21,7 @@ class YoutubeDlService:
         self.redis = redis
 
     async def submit(self, url_list):
-        asyncio.create_task(YoutubeDL().download(url_list, os.environ.get('YOUTUBE_DL_SAVE_PATH')))
+        asyncio.create_task(YoutubeDL().download(url_list, os.environ.get('YOUTUBE_DL_SAVE_PATH'), self.logger, self.redis))
         # shanghai_tz = pytz.timezone('Asia/Shanghai')
         # now = datetime.now(shanghai_tz)
         # redis_id = str(uuid4())
