@@ -11,6 +11,7 @@ from uuid import uuid4
 from constants import YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX
 import time
 import json
+import asyncio
 
 
 class YoutubeDlService:
@@ -55,3 +56,4 @@ class YoutubeDlService:
             yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
                                                                     json.dumps(
                                                                         [item.decode('utf-8') for item in youtube_dl_download_process_list]))
+            await asyncio.sleep(1)
