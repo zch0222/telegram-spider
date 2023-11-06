@@ -19,7 +19,7 @@ async def youtube_dl_submit(youtube_dl_submit_dto: YoutubeDlSubmitDTO, service: 
     return ResData.success("提交成功")
 
 
-def get_youtube_dl_download_process(redis: aioredis.Redis):
+async def get_youtube_dl_download_process(redis: aioredis.Redis):
     while True:
         keys = await redis.keys(YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX + "*")
         youtube_dl_download_process_list = []
