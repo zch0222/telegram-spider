@@ -39,7 +39,6 @@ class YoutubeDlService:
 
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download(url_list)
-            return ResData.success("下载成功")
         except Exception as e:
             print(e)
         finally:
