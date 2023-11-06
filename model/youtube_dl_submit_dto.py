@@ -2,4 +2,4 @@ from pydantic import BaseModel
 
 
 class YoutubeDlSubmitDTO(BaseModel):
-    url: str
+    url_list: list[str]
