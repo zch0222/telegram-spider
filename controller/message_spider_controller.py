@@ -3,11 +3,6 @@ from fastapi.responses import StreamingResponse
 from model import SubmitTaskDTO, ResData, SearchMessageTextDTO, DownloadMessageMediaDTO
 from service.message_spider_service import MessageService
 import asyncio
-from constants import YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX
-import time
-import json
-import aioredis
-from core import get_redis
 
 message_spider_router = APIRouter()
 
@@ -54,28 +49,3 @@ async def download_message_media(download_message_media_dto: DownloadMessageMedi
                                  service: MessageService = Depends()):
     asyncio.create_task(service.download_media_from_message(download_message_media_dto.message_link))
     return ResData.success("提交下载任务成功")
-
-
-async def get_youtube_dl_download_process(redis: aioredis.Redis):
-    while True:
-        keys = await redis.keys(YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX + "*")
-        youtube_dl_download_process_list = []
-        for key in keys:
-            youtube_dl_download_process = await redis.get(key)
-            youtube_dl_download_process_list.append(youtube_dl_download_process)
-        yield 'id: "{}"\nevent: "message"\ndata: {}\n\n'.format(int(time.time()),
-                                                                json.dumps(
-                                                                    [item.decode('utf-8') for item in
-                                                                     youtube_dl_download_process_list]))
-        await asyncio.sleep(1)
-
-
-@message_spider_router.get("/youtube_dl/process")
-async def youtube_dl_process(redis: aioredis.Redis = Depends(get_redis)):
-    headers = {
-        # 设置返回数据类型是SSE
-        'Content-Type': 'text/event-stream',
-        # 保证客户端的数据是新的
-        'Cache-Control': 'no-cache',
-    }
-    return StreamingResponse(get_youtube_dl_download_process(redis), headers=headers)
