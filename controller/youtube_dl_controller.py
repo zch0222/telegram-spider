@@ -9,7 +9,8 @@ youtube_dl_router = APIRouter()
 
 @youtube_dl_router.post("/youtube_dl/submit")
 async def youtube_dl_submit(youtube_dl_submit_dto: YoutubeDlSubmitDTO, service: YoutubeDlService = Depends()):
-    asyncio.create_task(service.submit(youtube_dl_submit_dto.url_list))
+    # asyncio.create_task(service.submit(youtube_dl_submit_dto.url_list))
+    asyncio.create_task(YoutubeDlService().submit(youtube_dl_submit_dto.url_list))
     return ResData.success("提交成功")
 
 
