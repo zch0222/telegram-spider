@@ -1,4 +1,4 @@
-from core import get_logger, get_redis
+from core import get_logger, get_redis, YoutubeDL
 import logging
 from fastapi import Depends
 import os
@@ -20,30 +20,31 @@ class YoutubeDlService:
         self.logger = logger
         self.redis = redis
 
-    async def submit(self, url_list):
-        shanghai_tz = pytz.timezone('Asia/Shanghai')
-        now = datetime.now(shanghai_tz)
-        redis_id = str(uuid4())
-        self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- youtube-dl: {str(redis_id)} start")
-        print(1)
-        print(url_list)
-        await self.redis.set(YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX + redis_id, YoutubeDlProcessBO(
-            id=redis_id,
-            url_list=url_list
-        ).to_json_str())
-        print(2)
-        try:
-            ydl_opts = {
-                'outtmpl': f"{os.environ.get('YOUTUBE_DL_SAVE_PATH')}/%(title)s.%(ext)s",
-            }
-
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                ydl.download(url_list)
-        except Exception as e:
-            print(e)
-        finally:
-            await self.redis.delete(YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX + redis_id)
-            self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- youtube-dl: {str(redis_id)} finish")
+    async def submit(self, url_list, youtubedl: YoutubeDL = Depends()):
+        asyncio.create_task(youtubedl.download(url_list, os.environ.get('YOUTUBE_DL_SAVE_PATH')))
+        # shanghai_tz = pytz.timezone('Asia/Shanghai')
+        # now = datetime.now(shanghai_tz)
+        # redis_id = str(uuid4())
+        # self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- youtube-dl: {str(redis_id)} start")
+        # print(1)
+        # print(url_list)
+        # await self.redis.set(YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX + redis_id, YoutubeDlProcessBO(
+        #     id=redis_id,
+        #     url_list=url_list
+        # ).to_json_str())
+        # print(2)
+        # try:
+        #     ydl_opts = {
+        #         'outtmpl': f"{os.environ.get('YOUTUBE_DL_SAVE_PATH')}/%(title)s.%(ext)s",
+        #     }
+        #
+        #     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        #         ydl.download(url_list)
+        # except Exception as e:
+        #     print(e)
+        # finally:
+        #     await self.redis.delete(YOUTUBE_DL_DOWNLOAD_PROCESS_PREFIX + redis_id)
+        #     self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- youtube-dl: {str(redis_id)} finish")
 
     async def get_youtube_dl_download_process(self):
         while True:
