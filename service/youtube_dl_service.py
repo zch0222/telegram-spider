@@ -18,7 +18,7 @@ class YoutubeDlService:
         now = datetime.now(shanghai_tz)
         self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- youtube-dl: {url}")
         ydl_opts = {
-            'outtmpl': f"'{os.environ.get('YOUTUBE_DL_SAVE_PATH')}/%(title)s.%(ext)s'",
+            'outtmpl': f"{os.environ.get('YOUTUBE_DL_SAVE_PATH')}/%(title)s.%(ext)s",
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
