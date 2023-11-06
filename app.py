@@ -9,7 +9,7 @@ import time
 import json
 import asyncio
 
-from controller import message_spider_router, you_get_router
+from controller import message_spider_router, you_get_router, youtube_dl_router
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,6 +39,7 @@ app.add_middleware(
 
 app.include_router(message_spider_router)
 app.include_router(you_get_router)
+app.include_router(youtube_dl_router)
 
 @app.post("/restart")
 def restart():
