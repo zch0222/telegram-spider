@@ -2,3 +2,4 @@ myvenv/
 
 .env
 *.session
+*.session-journal
