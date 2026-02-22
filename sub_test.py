@@ -28,7 +28,9 @@ message_dao = MessageDAO(Database().get_conn())
 
 def save_message_to_db(msg):
     print('saving message...')
-    message_dao.insert_message(msg)
+    # 每次写入时创建新的数据库连接，避免多线程共享连接导致 Packet sequence number wrong
+    local_dao = MessageDAO(Database().get_conn())
+    local_dao.insert_message(msg)
 
 # --- 定义事件处理器 ---
 # @client.on 装饰器用于注册事件
