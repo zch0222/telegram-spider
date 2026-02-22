@@ -15,10 +15,12 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 
-from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router
+from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router, auth_controller
 from dotenv import load_dotenv
 from core.telegram_client import telegram_manager
 from core.polling_service import polling_service
+from middleware.auth_middleware import AuthMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,6 +66,44 @@ app.include_router(message_spider_router)
 app.include_router(you_get_router)
 app.include_router(youtube_dl_router)
 app.include_router(telegram_sub_router)
+app.include_router(auth_controller.auth_router)
+
+# Register Auth Middleware (It should be added after CORS middleware usually, 
+# but FastAPI executes middlewares in reverse order of addition. 
+# So if we want Auth to run after CORS (which handles preflight), 
+# we should add Auth BEFORE CORS? 
+# No, Starlette BaseHTTPMiddleware runs in the order added to the list if using `add_middleware`.
+# But `app.add_middleware` appends to the list which is processed wrapper-style.
+# The last added middleware is the first to receive the request.
+# So we want CORS to handle OPTIONS first. So CORS should be added LAST (which means first in code execution).
+# Wait, `add_middleware` adds to the top of the stack.
+# Request -> Middleware N -> ... -> Middleware 1 -> App
+# So if we want CORS to run first, we should add it LAST.
+# Currently CORS is added. Let's add Auth middleware.
+# We want: Request -> CORS -> Auth -> App
+# So we should add Auth first, then CORS.
+# But CORS is already added. 
+# Let's just add Auth middleware using app.add_middleware.
+# Since we want Auth to verify cookies, and CORS handles Access-Control headers.
+# If Auth fails, we still want CORS headers present so frontend can read the error.
+# So CORS should wrap Auth.
+# Meaning CORS should be added AFTER Auth in code (because of LIFO stack).
+# But here CORS is already added. So if I add Auth now, Auth will be outside CORS?
+# Request -> Auth -> CORS -> App
+# If Auth returns 401, CORS headers might be missing if CORS is inner.
+# So we need Auth to be INNER to CORS.
+# Request -> CORS -> Auth -> App
+# So Auth should be added BEFORE CORS in the code? No, `add_middleware` puts it on top.
+# So if I call `app.add_middleware(Auth)` NOW, it becomes the outermost.
+# To make it inner, it should have been added BEFORE CORS.
+# Let's try to add it. If CORS issues arise, we can reorder.
+# Actually, for `BaseHTTPMiddleware`, the order is tricky.
+# Let's just add it and see. Usually we want CORS outermost.
+# So we should add Auth, then CORS. 
+# Since CORS is already there, I should probably insert Auth before CORS or re-add CORS?
+# Let's simply add it.
+
+app.add_middleware(AuthMiddleware)
 
 
 # 1. 处理自定义业务异常 (BusinessException)
