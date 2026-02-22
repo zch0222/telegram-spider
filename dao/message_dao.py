@@ -32,3 +32,10 @@ class MessageDAO:
         messages = [dict(zip(column_names, row)) for row in result_set]
 
         return messages
+
+    def get_latest_message_id(self, channel):
+        cursor = self.db.cursor()
+        sql_query = "SELECT MAX(message_id) FROM tb_message WHERE channel = %s"
+        cursor.execute(sql_query, (channel,))
+        result = cursor.fetchone()
+        return result[0] if result and result[0] is not None else 0
