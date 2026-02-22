@@ -85,7 +85,8 @@ class PollingService:
                 logger.info(f"Checking {chat_target} ({channel_str}). Last ID in DB: {last_id}")
                 
                 # Fetch new messages
-                limit = None if last_id > 0 else 20
+                # If last_id is 0 (first time subscription), limit to 100 to avoid fetching too much history
+                limit = None if last_id > 0 else 100
                 min_id = last_id
                 
                 # client.get_messages returns a TotalList which is a list-like object
