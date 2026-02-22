@@ -24,7 +24,7 @@ target_chats = [item.strip() for item in target_chats_env.split(",") if item.str
 client = TelegramClient(session_name, api_id, api_hash)
 
 # --- 初始化MessageDao ---
-message_dao = MessageDAO(Database())
+message_dao = MessageDAO(Database().get_conn())
 
 def save_message_to_db(msg):
     print('saving message...')
