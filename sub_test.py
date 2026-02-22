@@ -1,4 +1,5 @@
 import asyncio
+import os
 from telethon import TelegramClient, events
 import datetime
 from core.config import TELETHON_API_ID, TELETHON_API_HASH, TELETHON_SESSION_NAME
@@ -16,7 +17,8 @@ print(TELETHON_API_ID)
 # 1. 频道/群组的用户名 (例如 '@google')
 # 2. 频道/群组的 ID (整数，例如 -100123456789)
 # 3. 邀请链接 (例如 'https://t.me/joinchat/AAAA...')
-target_chats = ['@Financial_Express', '@akileChat', '@doubi']
+target_chats_env = os.environ.get("TARGET_CHATS", "")
+target_chats = [item.strip() for item in target_chats_env.split(",") if item.strip()]
 
 # --- 初始化客户端 ---
 client = TelegramClient(session_name, api_id, api_hash)
@@ -58,6 +60,7 @@ async def normal_handler(event):
             "sender_username": sender_username,
             "sender_id": sender_id
         }
+        print(f"监听到消息: channel={msg_data['channel']} id={msg_data['id']} sender={msg_data['sender_username']} text={msg_data['text']}")
 
         # --- 2. 扔到线程池执行 (非阻塞) ---
         # asyncio.to_thread 会自动在后台线程运行 save_message_sync_task
@@ -71,6 +74,7 @@ async def normal_handler(event):
 
 # --- 启动客户端 ---
 print("正在启动监听...")
+print(f"监听频道列表: {target_chats}")
 client.start()
 print("监听中... 按 Ctrl+C 停止")
 client.run_until_disconnected()
