@@ -21,6 +21,7 @@ from core.telegram_client import telegram_manager
 from core.polling_service import polling_service
 from middleware.auth_middleware import AuthMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from core.config import CORS_ORIGINS
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -48,15 +49,9 @@ logger = logging.getLogger()
 logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
-origins = [
-    "http://localhost:3000",
-    "http://154.7.179.45:8081",
-    "https://telegram.yxlm.cloud"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -7,3 +7,12 @@ TELETHON_API_ID = os.environ.get("API_ID")
 TELETHON_API_HASH = os.environ.get("API_HASH")
 TELETHON_SESSION_NAME = 'Jian'
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", 120))
+
+# CORS Configuration
+env_origins = os.environ.get("CORS_ORIGINS", "")
+if env_origins:
+    CORS_ORIGINS = [origin.strip() for origin in env_origins.split(",") if origin.strip()]
+else:
+    CORS_ORIGINS = [
+        "http://localhost:3000"
+    ]
