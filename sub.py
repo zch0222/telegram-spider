@@ -1,7 +1,6 @@
 import asyncio
 import os
 import time
-import pytz
 from telethon import TelegramClient
 from core.config import TELETHON_API_ID, TELETHON_API_HASH, TELETHON_SESSION_NAME, CHECK_INTERVAL
 from db.session import Database

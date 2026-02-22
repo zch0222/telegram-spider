@@ -40,8 +40,13 @@ async def message_media_download_process(service: MessageService = Depends()):
 
 
 @message_spider_router.post("/search_message_text")
-def search_message_text(search_message_text_dto: SearchMessageTextDTO, service: MessageService = Depends()):
-    return ResData.success(service.search_messages_by_text(search_message_text_dto.messageText))
+def search_message_text(dto: SearchMessageTextDTO, service: MessageService = Depends()):
+    return ResData.success(service.search_messages_by_text(
+        text=dto.messageText,
+        channel=dto.channel,
+        page=dto.page,
+        page_size=dto.page_size
+    ))
 
 
 @message_spider_router.post("/download_message_media")

@@ -15,7 +15,7 @@ import asyncio
 from uuid import uuid4
 from model import TaskBO
 from constants import TASK_PROCESS_PREFIX, MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX
-from core import get_telegram_client
+from core.telegram_client import telegram_manager
 
 
 class MessageService:
@@ -56,8 +56,8 @@ class MessageService:
             self.dao.insert_message(msg)
 
     async def process_messages(self, channel, min_id):
-        client = TelegramClient('Jian', os.environ.get("API_ID"), os.environ.get("API_HASH"))
-        await client.start()
+        client = telegram_manager.client
+        # await client.start() # managed by lifespan
         redis_id = str(uuid4())
         print(redis_id)
         try:
@@ -84,7 +84,7 @@ class MessageService:
                 percent=100
             ).to_json_str())
             # await self.redis.delete(TASK_PROCESS_PREFIX + redis_id)
-            await client.disconnect()
+            # await client.disconnect() # managed by lifespan
             self.logger.info(f"{now.strftime('%Y-%m-%d %H:%M:%S')} -- spider: {channel} min_id: {min_id} Finish")
 
     async def get_task_process(self):
@@ -100,8 +100,8 @@ class MessageService:
                                                                         [item.decode('utf-8') for item in task_list]))
             await asyncio.sleep(1)
 
-    def search_messages_by_text(self, text):
-        return self.dao.search_messages_by_text(text)
+    def search_messages_by_text(self, text, channel=None, page=1, page_size=20):
+        return self.dao.search_messages_by_text(text, channel, page, page_size)
 
     async def get_message_media_download_process(self):
         while True:
@@ -122,8 +122,9 @@ class MessageService:
         if check_redis_data:
             print(f"link is downloading {message_link}")
             return
-        telegram_client = get_telegram_client()
-        await telegram_client.start()
+        
+        telegram_client = telegram_manager.client
+        # await telegram_client.start() # managed by lifespan
         try:
             pattern = r'(.*?)/(\d+)$'
             match = re.search(pattern, message_link)
@@ -159,4 +160,4 @@ class MessageService:
                     await message.download_media(subdir)
                     await self.redis.delete(MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX + message_link)
         finally:
-            await telegram_client.disconnect()
+            pass # await telegram_client.disconnect() # managed by lifespan

@@ -19,19 +19,60 @@ class MessageDAO:
         cursor.execute(sql_insert, values)
         self.db.commit()
 
-    def search_messages_by_text(self, text):
+    def search_messages_by_text(self, text, channel=None, page=1, page_size=20):
         cursor = self.db.cursor()
-        sql_query = "SELECT * FROM tb_message WHERE message_text LIKE %s"
-        cursor.execute(sql_query, ("%" + text + "%",))
+        
+        sql_query = "SELECT * FROM tb_message WHERE 1=1"
+        params = []
+        
+        if text:
+            sql_query += " AND message_text LIKE %s"
+            params.append("%" + text + "%")
+            
+        if channel:
+            sql_query += " AND channel LIKE %s"
+            params.append("%" + channel + "%")
+            
+        # Add sorting (descending by date)
+        sql_query += " ORDER BY date DESC"
+        
+        # Add pagination
+        offset = (page - 1) * page_size
+        sql_query += " LIMIT %s OFFSET %s"
+        params.extend([page_size, offset])
+        
+        cursor.execute(sql_query, tuple(params))
         result_set = cursor.fetchall()
 
         # 获取列名
-        column_names = [desc[0] for desc in cursor.description]
+        if cursor.description:
+            column_names = [desc[0] for desc in cursor.description]
+            # 将结果封装到字典中
+            messages = [dict(zip(column_names, row)) for row in result_set]
+        else:
+            messages = []
 
-        # 将结果封装到字典中
-        messages = [dict(zip(column_names, row)) for row in result_set]
+        # Get total count for pagination info
+        count_sql = "SELECT COUNT(*) FROM tb_message WHERE 1=1"
+        count_params = []
+        
+        if text:
+            count_sql += " AND message_text LIKE %s"
+            count_params.append("%" + text + "%")
+            
+        if channel:
+            count_sql += " AND channel LIKE %s"
+            count_params.append("%" + channel + "%")
+            
+        cursor.execute(count_sql, tuple(count_params))
+        total = cursor.fetchone()[0]
 
-        return messages
+        return {
+            "list": messages,
+            "total": total,
+            "page": page,
+            "page_size": page_size
+        }
 
     def get_latest_message_id(self, channel):
         cursor = self.db.cursor()
