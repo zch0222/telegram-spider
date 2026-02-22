@@ -5,7 +5,7 @@ from telethon import TelegramClient, events
 from core.config import TELETHON_API_ID, TELETHON_API_HASH, TELETHON_SESSION_NAME
 
 # 引入你的 DB 和 DAO
-from db import get_db
+from db.session import Database
 from dao.message_dao import MessageDAO
 from dao.sub_group_dao import SubGroupDAO
 
@@ -43,7 +43,7 @@ class TelegramClientManager:
 
     async def refresh_cache(self):
         """从数据库刷新缓存 (线程安全)"""
-        db = get_db()
+        db = Database().get_conn()
         try:
             # 在锁外进行数据库查询（IO耗时操作，不要阻塞锁）
             dao = SubGroupDAO(db)

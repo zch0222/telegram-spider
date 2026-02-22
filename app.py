@@ -18,13 +18,20 @@ from fastapi.exceptions import RequestValidationError
 from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router
 from dotenv import load_dotenv
 from core.telegram_client import telegram_manager
+from core.polling_service import polling_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 启动时：连接 Telegram 并加载缓存
     await telegram_manager.start()
+    # 启动轮询服务
+    await polling_service.start()
+    
     yield
-    # 关闭时：断开连接
+    
+    # 关闭时：停止轮询服务
+    await polling_service.stop()
+    # 断开连接
     await telegram_manager.stop()
 
 
