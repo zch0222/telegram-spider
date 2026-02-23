@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 
-from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router, auth_controller, yt_dlp_controller
+from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router, auth_controller, yt_dlp_controller, polling_log_controller
 from dotenv import load_dotenv
 from core.telegram_client import telegram_manager
 from core.polling_service import polling_service
@@ -60,6 +60,7 @@ app.include_router(youtube_dl_router)
 app.include_router(telegram_sub_router)
 app.include_router(auth_controller.auth_router)
 app.include_router(yt_dlp_controller.yt_dlp_router)
+app.include_router(polling_log_controller.polling_log_router)
 
 # Register Auth Middleware (It should be added after CORS middleware usually, 
 # but FastAPI executes middlewares in reverse order of addition. 

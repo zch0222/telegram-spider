@@ -5,6 +5,7 @@ import pytz
 from core.config import CHECK_INTERVAL
 from db.session import Database
 from dao.message_dao import MessageDAO
+from dao.polling_log_dao import PollingLogDAO
 from core.log import get_logger
 from core.telegram_client import telegram_manager
 
@@ -68,6 +69,7 @@ class PollingService:
         # Create a new DB connection for this cycle
         db_conn = Database().get_conn()
         dao = MessageDAO(db_conn)
+        log_dao = PollingLogDAO(db_conn)
         
         client = telegram_manager.client
         
@@ -96,7 +98,9 @@ class PollingService:
                     logger.info(f"No new messages for {chat_target}")
                     continue
                     
-                logger.info(f"Found {len(messages)} new messages for {chat_target}")
+                msg_count = len(messages)
+                logger.info(f"Found {msg_count} new messages for {chat_target}")
+                log_dao.log("INFO", f"Found {msg_count} new messages for {chat_target} (Last ID: {last_id})")
                 
                 # Process messages (oldest first)
                 for message in reversed(messages):
@@ -104,7 +108,9 @@ class PollingService:
                     await self._save_message(dao, message, entity, sender)
                     
             except Exception as e:
-                logger.error(f"Error processing {chat_target}: {e}")
+                error_msg = f"Error processing {chat_target}: {e}"
+                logger.error(error_msg)
+                log_dao.log("ERROR", error_msg)
         
         # Close connection
         try:
