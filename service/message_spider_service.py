@@ -16,6 +16,7 @@ from uuid import uuid4
 from model import TaskBO
 from constants import TASK_PROCESS_PREFIX, MESSAGE_MEDIA_DOWNLOAD_PROCESS_PREFIX
 from core.telegram_client import telegram_manager
+from core.config import MEDIA_DOWNLOAD_SAVE_PATH
 
 
 class MessageService:
@@ -137,7 +138,7 @@ class MessageService:
             async for message in messages:
                 print(message.media)
                 if message.media:
-                    path = os.environ.get("MEDIA_DOWNLOAD_SAVE_PATH")
+                    path = MEDIA_DOWNLOAD_SAVE_PATH
                     print(path)
 
                     # 检查 to_id 的类型并获取相应的 ID
