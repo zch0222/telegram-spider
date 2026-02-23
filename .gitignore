@@ -30,4 +30,6 @@ dist/
 *.session
 *.session-journal
 
+downloads/
+
 *_log.txt

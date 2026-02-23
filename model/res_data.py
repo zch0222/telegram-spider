@@ -14,8 +14,8 @@ class ResData:
         }
 
     @staticmethod
-    def success(data: object):
-        res_data = ResData(1, "", data)
+    def success(data: object, msg: str = "success"):
+        res_data = ResData(1, msg, data)
         return res_data.to_dict()
 
     @staticmethod

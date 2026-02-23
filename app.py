@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 import logging
-from logging.handlers import RotatingFileHandler
 from fastapi.responses import StreamingResponse
 import subprocess
 
@@ -15,7 +14,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 
-from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router, auth_controller
+from controller import message_spider_router, you_get_router, youtube_dl_router, telegram_sub_router, auth_controller, yt_dlp_controller
 from dotenv import load_dotenv
 from core.telegram_client import telegram_manager
 from core.polling_service import polling_service
@@ -38,16 +37,14 @@ async def lifespan(app: FastAPI):
     await telegram_manager.stop()
 
 
+from core.log import get_logger
+
 load_dotenv()
 
 app = FastAPI(lifespan=lifespan)
 
-formatter = logging.Formatter('%(levelname)s - %(message)s')
-file_handler = RotatingFileHandler(filename="app.log", maxBytes=1000000, backupCount=10)
-file_handler.setFormatter(formatter)
-logger = logging.getLogger()
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
+logger = get_logger()
+logger.info("Application starting...")
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,6 +59,7 @@ app.include_router(you_get_router)
 app.include_router(youtube_dl_router)
 app.include_router(telegram_sub_router)
 app.include_router(auth_controller.auth_router)
+app.include_router(yt_dlp_controller.yt_dlp_router)
 
 # Register Auth Middleware (It should be added after CORS middleware usually, 
 # but FastAPI executes middlewares in reverse order of addition. 

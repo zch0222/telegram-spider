@@ -37,3 +37,19 @@ CREATE TABLE IF NOT EXISTS tb_user (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS tb_yt_dlp_task (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(1000) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending', -- pending, downloading, completed, error
+    title VARCHAR(500),
+    file_path VARCHAR(500),
+    total_bytes BIGINT,
+    downloaded_bytes BIGINT,
+    progress DECIMAL(5, 2) DEFAULT 0.00,
+    speed VARCHAR(50), -- e.g., "1.5 MiB/s"
+    eta VARCHAR(50), -- e.g., "00:05"
+    error_msg TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
