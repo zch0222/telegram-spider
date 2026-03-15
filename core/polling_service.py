@@ -136,7 +136,7 @@ class PollingService:
         try:
             chat_username = chat.username if hasattr(chat, 'username') and chat.username else str(chat.id)
             sender_username = getattr(sender, 'username', None)
-            sender_id = str(sender.id) if sender else None
+            sender_id = str(sender.id) if sender else (str(message.sender_id) if message.sender_id else None)
 
             # Build link
             msg_link = f"https://t.me/{chat_username}/{message.id}" if hasattr(chat, 'username') and chat.username else ""
