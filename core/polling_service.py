@@ -2,6 +2,8 @@ import asyncio
 import time
 import os
 import pytz
+import random
+from telethon import errors
 from core.config import CHECK_INTERVAL
 from db.session import Database
 from dao.message_dao import MessageDAO
@@ -75,6 +77,9 @@ class PollingService:
         
         for chat_target in self.target_chats:
             try:
+                # 增加随机延迟，避免频繁请求触发风控 (2到5秒)
+                await asyncio.sleep(random.uniform(2.0, 5.0))
+                
                 # Resolve entity
                 entity = await client.get_entity(chat_target)
                 
@@ -87,8 +92,8 @@ class PollingService:
                 logger.info(f"Checking {chat_target} ({channel_str}). Last ID in DB: {last_id}")
                 
                 # Fetch new messages
-                # If last_id is 0 (first time subscription), limit to 100 to avoid fetching too much history
-                limit = None if last_id > 0 else 100
+                # 每次最多获取一定数量的消息，防止一次性拉取太多被封禁
+                limit = 200 if last_id > 0 else 100
                 min_id = last_id
                 
                 # client.get_messages returns a TotalList which is a list-like object
@@ -104,9 +109,15 @@ class PollingService:
                 
                 # Process messages (oldest first)
                 for message in reversed(messages):
+                    # 获取 sender 会产生额外的 API 请求，增加很小的随机延迟
+                    await asyncio.sleep(random.uniform(0.5, 1.5))
                     sender = await message.get_sender()
                     await self._save_message(dao, message, entity, sender)
                     
+            except errors.FloodWaitError as e:
+                logger.warning(f"Telegram API 触发风控请求频繁，需要等待 {e.seconds} 秒: {chat_target}")
+                log_dao.log("WARNING", f"Rate limited. Waiting {e.seconds} seconds for {chat_target}")
+                await asyncio.sleep(e.seconds)
             except Exception as e:
                 error_msg = f"Error processing {chat_target}: {e}"
                 logger.error(error_msg)
